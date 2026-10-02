@@ -35,10 +35,20 @@ gh run view <run-id> --attempt 1 --log-failed
 
 # Artifacts: test reports, traces, screenshots
 gh run download <run-id> --dir <tmp dir>
+
+# Full log of a run. Use this for runs that passed when retries are on.
+# Each line is "<job>\t<step>\t<timestamp> <text>". Remove the prefix when you save the log.
+gh run view <run-id> --log | perl -pe 's/^[^\t]*\t[^\t]*\t\S+Z //; s/\r$//' > <tmp dir>/<run-id>.log
 ```
 
-`conclusion` is `success`, `failure`, `cancelled`, `timed_out` or `skipped`. `cancelled` and
-`timed_out` are usually infrastructure or a superseded push, not a test result.
+- `conclusion` is `success`, `failure`, `cancelled`, `timed_out`, `skipped` or `action_required`.
+  `cancelled` and `timed_out` are usually infrastructure or a superseded push, not a test result.
+  `action_required` is a pull request from a fork that waits for approval. No test ran.
+- `--branch main` also gives pull requests from forks whose branch is named `main`. To get the
+  runs of the default branch only, filter for `event == "push"`.
+- Use `-R <owner>/<repo>` when the current directory is not the repository.
+- BSD `sed` on macOS does not know `\t`. Use `perl` or `awk` to remove the log prefix.
+
 
 ## GitLab CI (`glab`)
 

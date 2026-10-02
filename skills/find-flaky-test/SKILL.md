@@ -69,14 +69,17 @@ each CI system. Read it now.
 **3. Use the runner's own flake report if there is one.** Read the runner config. If retries are
 on, the runner already reports tests that failed and then passed, and that is class 1 evidence:
 Playwright prints `N flaky` in the summary, Cypress shows the attempts for each test, pytest needs
-a rerun plugin, Gradle and Maven need a retry plugin. If the logs have such a report, it is the
-candidate list. Take the most frequent candidate and go to step 6. Do not run the suite locally to
-prove what the runner already proved.
+a rerun plugin, Gradle and Maven need a retry plugin. With retries on, a flaky test does not make
+the run fail, so the report is in the logs of the runs that passed. Get those logs, save them, and
+read only the summary of each. Count in how many runs each test is reported. That count is the
+candidate list. Take the most frequent candidate and go to step 6. Tests that fail together in one
+`describe` or one file frequently have one cause, so treat them as one candidate. Do not run the
+suite locally to prove what the runner already proved.
 
 **4. If not, collect the failures.** Get the log of the test step for each failed run. One pass,
 and save the logs in the temporary directory so that you do not download them again. Extract the
-names of the failed tests and the first error line of each. Do not download the logs of runs that
-passed. They can be very large, and the run result already tells you the outcome.
+names of the failed tests and the first error line of each. With retries off, do not download the
+logs of runs that passed. They can be very large, and the run result already tells you the outcome.
 
 **5. Group the failures by commit.** A test with different outcomes at the same commit is the
 primary suspect. Remember run attempts: a run that failed and passed after a re-run with no new
@@ -99,8 +102,11 @@ that cause most flakes and how to confirm each one. Read it now.
 
 For each possible cause, ask if it is the cause or an effect of something else. Prove it with
 evidence, not with plausibility. Examples of evidence: the retry count, the timing in the trace, a
-random value that is visible in the log, identical or different file hashes. If the suite runs
-locally, try to reproduce the failure, for example with
+random value that is visible in the log, identical or different file hashes. Compare the received
+values of all failures of the test across the runs. A value that is different each time points to a
+race or to random data. A value that is the same each time points to state or order. If you cannot
+run the suite, try to reproduce the mechanism alone in a small script outside the repository. If
+the suite runs locally, try to reproduce the failure, for example with
 `npx playwright test <file> -g "<name>" --repeat-each 20`. Think about what CI has and the local
 machine does not: parallel workers, slow CPU, cold caches, a different timezone or locale, a
 different test order, shared accounts or databases.

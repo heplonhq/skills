@@ -108,3 +108,12 @@ A promise without `await`, an assertion in a callback that runs after the test e
 `return` of a Cypress or promise chain. Confirm: the failure is reported in the wrong test, or the
 test passes although the assertion did not run. Fix: await or return the promise. A linter rule
 such as `no-floating-promises` finds the other places.
+
+**Setup that does not wait.** A seed or setup helper returns before its work is done, so the test
+reads data that is not there yet. The missing data is different each time, and a retry usually
+passes. Causes are a `forEach` with an async callback, a `Promise.all` over values that are not
+promises, or a builder that needs a last call to give its result (for example a ts-pattern
+`match(...)` with no `.exhaustive()` or `.otherwise()`). A lint suppression for `require-await` or
+`no-floating-promises` near the helper is a hint. Confirm: only the tests that use the helper are
+flaky, and a small script shows that the helper resolves before the work is done. Fix: return and
+await the promises in the helper.
