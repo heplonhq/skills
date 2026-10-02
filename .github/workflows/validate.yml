@@ -1,0 +1,29 @@
+name: Validate skills
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check SKILL.md files
+        run: scripts/validate.sh
+      - name: Check that the skills CLI finds each skill
+        run: |
+          expected=$(find skills -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)
+          [ "$expected" -eq 0 ] && exit 0
+          DISABLE_TELEMETRY=1 npx --yes skills add . --list | tee list.txt
+          for dir in skills/*/; do
+            grep -q "$(basename "$dir")" list.txt || { echo "::error::skills CLI did not find $(basename "$dir")"; exit 1; }
+          done

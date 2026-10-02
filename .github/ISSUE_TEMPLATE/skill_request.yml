@@ -1,0 +1,23 @@
+name: Skill request
+description: Suggest a new skill
+labels: [skill-request]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What causes incidents or slows your team down?
+    validations:
+      required: true
+  - type: textarea
+    id: skill
+    attributes:
+      label: What the skill must do
+      description: The input, the steps and the result.
+    validations:
+      required: true
+  - type: input
+    id: stack
+    attributes:
+      label: Stack
+      placeholder: Playwright, GitHub Actions, TypeScript
