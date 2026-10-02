@@ -32,7 +32,7 @@ Add `--global` to install for all your projects.
 
 | Skill | What it does |
 | ----- | ------------ |
-| Coming soon | |
+| [`find-flaky-test`](skills/find-flaky-test/SKILL.md) | Finds one flaky test from your CI history, proves that it is flaky, finds the root cause and fixes it. |
 
 ## Update and remove
 
